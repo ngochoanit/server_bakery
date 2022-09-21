@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import { accessTokenLife, jwtSecret, refreshTokenLife } from "../configs";
+import { accessTokenLife, jwtSecret, refreshTokenLife } from "../config";
 
 export const generateToken = (payload) => {
   let token = null;

@@ -1,11 +1,12 @@
 import jwt from "jsonwebtoken";
-import { jwtSecret } from "../configs";
+import { jwtSecret } from "../config";
 import { ERROR_CODE } from "../constants/errorCode";
 import { verifyToken } from "../helpers/jwt.helper";
 
 export const isAuth = async (req, res, next) => {
   // Lấy token được gửi lên từ phía client, thông thường tốt nhất là các bạn nên truyền token vào header
-  const tokenFromClient = req.body.token || req.query.token || req.headers["x-access-token"];
+  const tokenFromClient =
+    req.body.token || req.query.token || req.headers["x-access-token"];
 
   if (tokenFromClient) {
     // Nếu tồn tại token
@@ -27,4 +28,4 @@ export const isAuth = async (req, res, next) => {
     // Không tìm thấy token trong request
     return res.status(403).send(ERROR_CODE.NO_TOKEN_PROVIDED);
   }
-}
+};
