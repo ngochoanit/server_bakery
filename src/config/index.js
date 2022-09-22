@@ -11,3 +11,4 @@ export const database = process.env.DATABASE || "mysql";
 export const jwtSecret = process.env.JWT_SECRET || "pnh.it";
 export const accessTokenLife = process.env.ACCESS_TOKEN_LIFE || "1h";
 export const refreshTokenLife = process.env.REFRESH_TOKEN_LIFE || "30d";
+export const hashCode = process.env.HASH_CODE || "pnh.it";
