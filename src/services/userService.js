@@ -35,40 +35,57 @@ export const handleUserLogin = async (email, password) => {
   try {
     const db = await getDB();
     const isExist = await checkUserEmail(email);
-    // if (isExist) {
-    //   const [rows, fields] = await db.query(
-    //     `SELECT * FROM tbluser WHERE email='${email}' AND password='${password}' LIMIT 1`
-    //   );
-    //   if (rows.length === 1) {
-    //     const accessToken = await generateToken({
-    //       userId: rows[0].id,
-    //       roleId: rows[0].role,
-    //       email: rows[0].email,
-    //     });
-    //     const refreshToken = await generateRefreshToken({
-    //       userId: rows[0].id,
-    //       roleId: rows[0].role,
-    //       email: rows[0].email,
-    //     });
-    //     tokenList[refreshToken] = { accessToken, refreshToken };
-    //     return {
-    //       ...ERROR_CODE.OK,
-    //       data: {
-    //         accessToken: accessToken,
-    //         userId: rows[0].id,
-    //         roleId: rows[0].role,
-    //         email: rows[0].email,
-    //         lastName: rows[0].lastName,
-    //         firstName: rows[0].firstName,
-    //       },
-    //     };
-    //   } else {
-    //     return ERROR_CODE.EMAIL_OR_PASSWORD_INCORRECT;
-    //   }
-    // }
+    if (isExist) {
+      const user = await db.User.findOne({
+        where: { email: email },
+        attributes: [
+          "id",
+          "email",
+          "role",
+          "password",
+          "firstName",
+          "lastName",
+        ],
+        raw: true,
+      });
+      if (user) {
+        //compare password
+        const check = await bcrypt.compareSync(password, user.password);
+        if (check) {
+          // userData.errCode = 0;
+          // userData.errMessage = `OK`;
+          // delete user.password;
+          // userData.userInfo = user;
+          console.log("asdasd");
+        }
+      }
+      if (rows.length === 1) {
+        const accessToken = await generateToken({
+          userId: rows[0].id,
+          roleId: rows[0].role,
+          email: rows[0].email,
+        });
+        const refreshToken = await generateRefreshToken({
+          userId: rows[0].id,
+          roleId: rows[0].role,
+          email: rows[0].email,
+        });
+        tokenList[refreshToken] = { accessToken, refreshToken };
+        return {
+          ...ERROR_CODE.OK,
+          data: {
+            accessToken: accessToken,
+            userId: rows[0].id,
+            role: rows[0].role,
+            email: rows[0].email,
+          },
+        };
+      } else {
+        return ERROR_CODE.EMAIL_OR_PASSWORD_INCORRECT;
+      }
+    }
     return ERROR_CODE.EMAIL_OR_PASSWORD_INCORRECT;
   } catch (err) {
-    console.log(err);
     throw new Error(err);
   }
 };
@@ -97,8 +114,47 @@ export const createUserService = async function (data) {
       return {
         ...ERROR_CODE.OK,
         data: {
-          ...result,
+          ...result.dataValues,
         },
+      };
+    }
+  } catch (err) {
+    throw new Error(err);
+  }
+};
+export const getListUserService = async function (records, pages) {
+  try {
+    const result = await db.User.findAll({
+      attributes: { exclude: ["password"] },
+      raw: true,
+      offset: (pages - 1) * records,
+      limit: pages * records,
+    });
+    console.log(result.dataValues);
+    return {
+      ...ERROR_CODE.OK,
+      data: [...result],
+    };
+  } catch (err) {
+    throw new Error(err);
+  }
+};
+
+export const getUserById = async (id) => {
+  try {
+    const user = await db.User.findOne({
+      where: { id: id },
+      attributes: ["id", "email", "role", "firstName", "lastName"],
+      raw: true,
+    });
+    if (user) {
+      return {
+        ...ERROR_CODE.OK,
+        data: user,
+      };
+    } else {
+      return {
+        ...ERROR_CODE.OK,
       };
     }
   } catch (err) {

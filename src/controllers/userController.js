@@ -1,6 +1,11 @@
 import { ERROR_CODE } from "../constants/errorCode";
 import { regexEmail, regexPassword } from "../helpers/validate.helper";
-import { createUserService, handleUserLogin } from "../services/userService";
+import {
+  createUserService,
+  getListUserService,
+  getUserById,
+  handleUserLogin,
+} from "../services/userService";
 
 export const handleLogin = async (req, res) => {
   try {
@@ -41,6 +46,31 @@ export const handleCreateUser = async (req, res) => {
     }
     const result = await createUserService(data);
     return res.status(200).json(result);
+  } catch (err) {
+    console.log(err);
+    return res.status(200).json(ERROR_CODE.SERVER_ERROR);
+  }
+};
+export const handleGetListUser = async (req, res) => {
+  try {
+    const data = req.query;
+    const { records = 0, pages = 1 } = data;
+    console.log(records, pages);
+    const result = await getListUserService(records, pages);
+    return res.status(200).json(result);
+  } catch (err) {
+    console.log(err);
+    return res.status(200).json(ERROR_CODE.SERVER_ERROR);
+  }
+};
+export const handleGetUserById = async (req, res) => {
+  try {
+    if (req.params && req.params.id) {
+      const result = await getUserById(req.params.id);
+      return res.status(200).json(result);
+    } else {
+      return res.status(200).json(ERROR_CODE.MISSING_PARAM);
+    }
   } catch (err) {
     console.log(err);
     return res.status(200).json(ERROR_CODE.SERVER_ERROR);
